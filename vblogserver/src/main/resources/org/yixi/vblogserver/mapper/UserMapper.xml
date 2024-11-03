@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yixi.vblogserver.mapper.UserMapper">
+    <select id="loadUserByUsername" resultType="org.yixi.vblogserver.bean.User">
+        select * from user where username=#{username}
+    </select>
+
+    <!--修改邮箱-->
+    <update id="updateUserEmail">
+        update user set email = #{email} where id = #{id}
+    </update>
+
+<!--    根据昵称查找用户,不包括超级管理员，这是不能被管理的-->
+    <select id="getUserByNickname" resultMap="BaseResultMap">
+        SELECT u.*,r.`id` AS rid,r.`name` AS rname FROM user u,roles r,roles_user ru WHERE u.`id`=ru.`uid` AND
+            r.`id`=ru.`rid` AND u.`id` NOT IN(SELECT u.`id` FROM user u,roles_user ru WHERE u.`id`=ru.`uid` AND ru.`rid`=1)
+        <choose>
+            <when test="nickname!=null and nickname!=''">
+                and u.nickname like concat("%",#{nickname},"%") order by u.id
+            </when>
+            <otherwise>
+                order by u.id limit 0,20
+            </otherwise>
+        </choose>
+    </select>
+    
+    <resultMap id="BaseResultMap" type="org.yixi.vblogserver.bean.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="nickname" property="nickname"/>
+        <result column="password" property="password"/>
+        <result column="enabled" property="enabled"/>
+        <result column="email" property="email"/>
+        <result column="userface" property="userface"/>
+        <result column="regTime" property="regTime"/>
+        <collection property="roles" ofType="org.yixi.vblogserver.bean.Role">
+            <id column="rid" property="id"></id>
+            <result column="rname" property="name"></result>
+        </collection>
+    </resultMap>
+
+<!--修改用户状态-->
+    <update id="updateUserEnabled">
+        update user set enabled = #{enabled} where id = #{uid}
+    </update>
+
+<!--根据id查询用户-->
+<select id="getUserById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select u.*,r.`id` AS rid,r.`name` AS rname FROM user u,roles r,roles_user ru WHERE u.`id`=ru.`uid` AND
+        r.`id`=ru.`rid` AND u.`id`=#{id}
+    </select>
+
+<!--查询所有角色-->
+    <select id="getAllRole" resultType="org.yixi.vblogserver.bean.Role">
+        select * from roles
+    </select>
+
+<!--删除用户-->
+    <delete id="deleteUser">
+        delete from user where id=#{id}
+    </delete>
+
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yixi.vblogserver.mapper.CategoryMapper">
+    <select id="getAllCategories" resultType="org.yixi.vblogserver.bean.Category">
+        select * from category
+    </select>
+
+<!--    增加一个分类-->
+    <insert id="addNewCate" parameterType="org.yixi.vblogserver.bean.Category">
+        insert into category(cateName,date) values(#{cateName},#{date})
+    </insert>
+
+<!--    更新分类-->
+    <update id="updateCate" parameterType="org.yixi.vblogserver.bean.Category">
+        update category set cateName=#{cateName} where id=#{id}
+    </update>
+<!--    删除分类-->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from category where id IN 
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
